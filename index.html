@@ -52,9 +52,10 @@
   };
   // Bazı ortamlarda (webOS) onStateChange gelmiyor: durumu yoklayıp değişince bildir
   var last = null;
-  // Her zaman sessiz başla: video önünde reklam varsa sesi duyulmasın.
-  // Asıl video oynamaya başlayınca (durum 1) istenmişse ses açılır.
-  var wantSound = q.get('mute') === '0';
+  // Her zaman sessiz başla: video önünde reklam varsa sesi duyulmasın. Ses, uygulama
+  // fragmanı görünür yaptığında 'unmute' komutuyla açılır (YouTube'un başlangıçtaki
+  // oynat/duraklat göstergesi kaybolana kadar fragman gizli ve sessiz kalır).
+  var wantSound = false;
   function report(st) {
     if (st !== last) {
       last = st;

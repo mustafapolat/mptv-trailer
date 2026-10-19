@@ -35,12 +35,16 @@
         rel: 0, iv_load_policy: 3, playsinline: 1, cc_load_policy: 0, start: +(q.get('start') || 0),
       },
       events: {
-        onReady: function (e) { e.target.playVideo(); send({ ev: 'ready', d: e.target.getDuration() }); },
-        onStateChange: function (e) { send({ ev: 'state', s: e.data }); },
+        onReady: function (e) { e.target.playVideo(); send({ ev: 'ready', d: e.target.getDuration() }); poll(); },
+        onStateChange: function (e) { report(e.data); },
         onError: function (e) { send({ ev: 'error', code: e.data }); },
       },
     });
   };
+  // Bazı ortamlarda (webOS) onStateChange gelmiyor: durumu yoklayıp değişince bildir
+  var last = null;
+  function report(st) { if (st !== last) { last = st; send({ ev: 'state', s: st }); } }
+  function poll() { setInterval(function () { if (player && player.getPlayerState) report(player.getPlayerState()); }, 500); }
   window.addEventListener('message', function (e) {
     var d;
     try { d = typeof e.data === 'string' ? JSON.parse(e.data) : e.data; } catch (x) { return; }

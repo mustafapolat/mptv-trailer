@@ -43,7 +43,14 @@
   };
   // Bazı ortamlarda (webOS) onStateChange gelmiyor: durumu yoklayıp değişince bildir
   var last = null;
-  function report(st) { if (st !== last) { last = st; send({ ev: 'state', s: st }); } }
+  var wantSound = q.get('mute') === '0';
+  function report(st) {
+    if (st !== last) {
+      last = st;
+      if (st === 1 && wantSound && player.isMuted()) { player.unMute(); player.setVolume(100); }
+      send({ ev: 'state', s: st, m: player.isMuted() });
+    }
+  }
   function poll() { setInterval(function () { if (player && player.getPlayerState) report(player.getPlayerState()); }, 500); }
   window.addEventListener('message', function (e) {
     var d;
@@ -55,7 +62,8 @@
       case 'play': player.playVideo(); break;
       case 'pause': player.pauseVideo(); break;
       case 'seek': player.seekTo(Math.max(0, player.getCurrentTime() + (+d.by || 0)), true); break;
-      case 'time': send({ ev: 'time', t: player.getCurrentTime(), d: player.getDuration(), s: player.getPlayerState() }); break;
+      case 'time': send({ ev: 'time', t: player.getCurrentTime(), d: player.getDuration(), s: player.getPlayerState(), m: player.isMuted(), vol: player.getVolume() }); break;
+      case 'volume': player.setVolume(Math.max(0, Math.min(100, +d.v || 0))); break;
     }
   });
 </script>

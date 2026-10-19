@@ -31,7 +31,7 @@
       videoId: vid,
       host: 'https://www.youtube-nocookie.com',
       playerVars: {
-        autoplay: 1, mute: q.get('mute') === '0' ? 0 : 1, controls: 0, disablekb: 1, fs: 0,
+        autoplay: 1, mute: 1, controls: 0, disablekb: 1, fs: 0,
         rel: 0, iv_load_policy: 3, playsinline: 1, cc_load_policy: 0, start: +(q.get('start') || 0),
       },
       events: {
@@ -43,6 +43,8 @@
   };
   // Bazı ortamlarda (webOS) onStateChange gelmiyor: durumu yoklayıp değişince bildir
   var last = null;
+  // Her zaman sessiz başla: video önünde reklam varsa sesi duyulmasın.
+  // Asıl video oynamaya başlayınca (durum 1) istenmişse ses açılır.
   var wantSound = q.get('mute') === '0';
   function report(st) {
     if (st !== last) {

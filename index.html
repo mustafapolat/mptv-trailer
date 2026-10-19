@@ -35,7 +35,16 @@
         rel: 0, iv_load_policy: 3, playsinline: 1, cc_load_policy: 0, start: +(q.get('start') || 0),
       },
       events: {
-        onReady: function (e) { e.target.playVideo(); send({ ev: 'ready', d: e.target.getDuration() }); poll(); },
+        onReady: function (e) {
+          send({ ev: 'ready', d: e.target.getDuration() });
+          poll();
+          // autoplay zaten başlatıyor; gereksiz playVideo() YouTube'un ortadaki oynat/duraklat
+          // animasyonunu tetikliyor. Yalnızca oynatma kendiliğinden başlamadıysa çağır.
+          setTimeout(function () {
+            var st = e.target.getPlayerState();
+            if (st === -1 || st === 5) e.target.playVideo();
+          }, 1500);
+        },
         onStateChange: function (e) { report(e.data); },
         onError: function (e) { send({ ev: 'error', code: e.data }); },
       },

@@ -27,13 +27,16 @@
   function send(m) { m.mptv = 1; try { parent.postMessage(JSON.stringify(m), '*'); } catch (e) {} }
   window.onYouTubeIframeAPIReady = function () {
     if (!vid) { send({ ev: 'error', code: 'novideo' }); return; }
+    var pv = {
+      autoplay: 1, mute: 1, controls: 0, disablekb: 1, fs: 0,
+      rel: 0, iv_load_policy: 3, playsinline: 1, cc_load_policy: 0, start: +(q.get('start') || 0),
+    };
+    // deneme amaçlı ek oynatıcı ayarları: &pv={"controls":1}
+    try { var extra = JSON.parse(q.get('pv') || '{}'); for (var k in extra) pv[k] = extra[k]; } catch (x) {}
     player = new YT.Player('p', {
       videoId: vid,
-      host: 'https://www.youtube-nocookie.com',
-      playerVars: {
-        autoplay: 1, mute: 1, controls: 0, disablekb: 1, fs: 0,
-        rel: 0, iv_load_policy: 3, playsinline: 1, cc_load_policy: 0, start: +(q.get('start') || 0),
-      },
+      host: q.get('host') || 'https://www.youtube-nocookie.com',
+      playerVars: pv,
       events: {
         onReady: function (e) {
           send({ ev: 'ready', d: e.target.getDuration() });
